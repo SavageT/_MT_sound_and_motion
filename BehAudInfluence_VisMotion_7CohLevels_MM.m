@@ -10,7 +10,6 @@ PsychJavaTrouble
 subject='test'
 nblock='1'
 
-
 savedir = 'C:\Dropbox\MT Sound Motion';
 experiment = 'BehAudInfluence_VisMot_7levels_MM';
 saveIt = 1;
@@ -75,13 +74,13 @@ end
     
 p.blockDur=3; % stimulus block duration
 %% resp output
-% exp.order = p.order;
-exp.resp = zeros(length(p.order),1);
-exp.resptime = zeros(length(p.order),1);
+% expr.order = p.order;
+expr.resp = zeros(length(p.order),1);
+expr.resptime = zeros(length(p.order),1);
 
 
 %% display  
-display.screenNum = 1;
+display.screenNum = 0;
 % display.dist = 68;     % 68 in scanner % measured Sept 2013 for 32-channel
 % display.width = 32.25;     % 32.25 in scanner; visual angle ~26.68
 display.dist = 50; %%50; %laptop % 57 display++
@@ -116,8 +115,6 @@ dots.color = [255, 255, 255];
 dots.nDots = round( p.dotDensity * pi*(dots.apertureSize(1)/2)^2 );
 
 
-
-
 %% do it 
 
 % load premade auditory motion 60s long
@@ -148,15 +145,12 @@ stimNorm60s=repmat(stimNorm60s',1,60)';
 stimFlippedNorm60s=repmat(stimFlippedNorm60s',1,60)'; 
 p.Fs = 36104;
 
-
-
-
-
-
 startingID = ((randperm(60)-1)*p.Fs)+1;
 endingID = startingID + p.Fs*0.5 -1; %500ms
 
 display = OpenWindow(display);
+Screen('BlendFunction', display.windowPtr, 'GL_ONE', 'GL_ZERO');
+%Screen('BlendFunction', display.windowPtr,'GL_SRC_ALPHA','GL_ONE_MINUS_SRC_ALPHA');
 dots.size = angle2pix(display,p.disp.dotSize);
 
 % HideCursor
@@ -170,7 +164,7 @@ tic
 startTime = GetSecs;
 
 while GetSecs < startTime + 2.25
-    drawFixation(display)
+    drawFixation(display);
 end
     
 for block = 1:size(p.order,1)
@@ -184,15 +178,15 @@ for block = 1:size(p.order,1)
         sound(stim./max(stim(:)), p.Fs)
         dots.direction = p.disp.direction(p.order(block, 2));
         dots.coherence = p.disp.coherence(p.order(block, 1));
-        movingDots(display, dots, 0.5)% 500ms dots
+        movingDotsSimple(display, dots, 0.5);% 500ms dots
     end
     
     %FlushEvents;p
     while GetSecs < startTime + p.blockDur*(block-1) + 5.25
         [keyIsDown, timeSecs, keyCode ] = KbCheck;
         if keyIsDown
-            exp.resp(block, 1) = find(keyCode); % 37 'left arrow key' (left); 39 'right arrow key' (right)
-            exp.resptime(block, 1) = timeSecs - startTime- p.blockDur*(block-1)-2.75;
+            expr.resp(block, 1) = find(keyCode); % 37 'left arrow key' (left); 39 'right arrow key' (right)
+            expr.resptime(block, 1) = timeSecs - startTime- p.blockDur*(block-1)-2.75;
             if keyCode==27;break;end
             while KbCheck; end  % clear the keyboard buffer
         end
@@ -210,7 +204,7 @@ Screen('CloseAll');
 endTime=GetSecs;
 totalDur=endTime-startTime;
 
-keys=exp.resp; kR=keys==39; keys(kR)=1;
+keys=expr.resp; kR=keys==39; keys(kR)=1;
 kL=keys==37; keys(kL)=2;
 
 cong=p.order(:,2)==p.order(:,3);
@@ -238,10 +232,10 @@ bGra(i)=acc{i}{4};
 bGraI(i)=(sum(hitTempI)/length(hitTempI));
 bGraC(i)=(sum(hitTempC)/length(hitTempC));
 end
-exp.acc=acc;
-exp.barA=bGra;
-exp.barC=bGraC;
-exp.barI=bGraI;
+expr.acc=acc;
+expr.barA=bGra;
+expr.barC=bGraC;
+expr.barI=bGraI;
 %% save the data
 if saveIt
     chdir(savedir)
@@ -250,7 +244,7 @@ if saveIt
     yyyymmdd=sprintf('%04d%02d%02d', vec(1), vec(2), vec(3));
     hhmm=sprintf('%02d%02d', vec(4), vec(5));
     fileName = sprintf('S%s_%s_%s_%s_%s_%s',char(subject),yyyymmdd,hhmm,experiment,char(nblock)); %year; month; day; hour; minute
-    saveStr = sprintf('save %s p exp',fileName);
+    saveStr = sprintf('save %s p expr',fileName);
     eval(saveStr);
     disp(['saved ',fileName])
     % go back
