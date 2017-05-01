@@ -36,25 +36,16 @@ function movingDots(display,dots,duration)
 
 
 %Calculate total number of dots across fields
-nDots = sum([dots.nDots]);
-
-%Zero out the color and size vectors
-colors = zeros(3,nDots);
-sizes = zeros(1,nDots);
-
-%%T.s. addition
-% blurshader = Create2DGaussianBlurShader(100);
-
-%% create the blur dot
+nDots = dots.nDots;
 nn = 44; % MAKE SURE THE DOT IS AN EVEN NUMBER OF PIXELS
-% generate the small image
-[xx,yy] = meshgrid(linspace(-1,1,nn));
-% Gaussian
-%dotImg=255*ones(nn);
-dotImg = 255*exp(-(xx.^2+yy.^2)/.5^2);
-%dotImg(:, :, 2)=exp(-(xx.^2+yy.^2)/.5^2);
-dotTexture=Screen('MakeTexture', display.windowPtr, dotImg);
-dotRect = [0 0 size(dotImg,1) size(dotImg,2)];
+
+%rectify var names
+fixRectSz=display.fixation.fixRectSz;
+fixRectLoc=display.fixation.fixRectLoc;
+fixTexture=display.fixation.fixTexture;
+dotRect=dots.dotRect;
+dotTexture=dots.dotTexture;
+
 
 %% Intitialize the dot positions and define some other initial parameters
 %Calculate the left, right top and bottom of each aperture (in degrees)
@@ -108,7 +99,7 @@ for frameNum=1:nFrames
     
     %Replace the positions of the dead dots to random locations
     dots.x(deadDots) = (rand(1,sum(deadDots))-.5)*dots.apertureSize(1) + dots.center(1);
-    dots.y(deadDots) = (rand(1,sum(deadDots))-.5)*dots.apertureSize(2) + dots.center(2);  
+    dots.y(deadDots) = (rand(1,sum(deadDots))-.5)*dots.apertureSize(2) + dots.center(2);
     
     %Calculate the screen positions for this field from the real-world coordinates
     x = angle2pix(display,dots.x)+ display.resolution(1)/2;
@@ -121,8 +112,11 @@ for frameNum=1:nFrames
         (dots.y-dots.center(2)).^2/(dots.apertureSize(2)/2)^2 < 1;
     
     Screen('DrawTextures', display.windowPtr, dotTexture, dotRect, destRect);
-
-    drawFixation(display);
+    Screen('DrawTexture', display.windowPtr, fixTexture, fixRectSz, fixRectLoc);
+    
+    
+    Screen('Flip',display.windowPtr);
+    
 end
 
 end
