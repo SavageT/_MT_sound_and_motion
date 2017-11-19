@@ -11,23 +11,45 @@
 % 37 is left,  converts to a 1
 % 39 is right, converts to a -1
 
-clear all; close all
+clear all; 
+% close all
 
-    cd('C:\Dropbox\_MT Sound Motion');
+%     cd('C:\Dropbox\__Projects\_MT_sound_and_motion\');
+    cd('C:\Dropbox\__Projects\_MT_sound_and_motion\data');
+MyFileInfo = dir('*SMM*.mat');
+MyFileInfo = dir('*NSMD*.mat');
+% MyFileInfo = dir('MarkP_20171025*.mat');
 MyFileInfo = dir('SMM*.mat');
 
 %% collate data
 
-v_coh=[]; v_dir=[]; a_dir=[]; v_resp=[];congruent=[];correct=[];o
+
+
+v_coh=[]; v_dir=[]; a_dir=[]; v_resp=[];congruent=[];correct=[];
 for f=1:length(MyFileInfo)
     data=load(MyFileInfo(f).name);
-    order=data.p.order;  resp=data.exp.resp; coherence=data.p.disp.coherence;
+    
+    if isfield(data,'exp')
+       data=renameStructField(data, 'exp','expr');
+       R1=37;   R2=39;
+    else
+        R1=70;    R2=74;
+    end
+    
+    order=data.p.order;  resp=data.expr.resp; coherence=data.p.disp.coherence;
+    resp(resp==R1)=1;
+    resp(resp==R2)=-1;
+    
     for t=1:size(order, 1)
         v_dir=cat(1, v_dir, 2*(order(t, 2)-1.5)); % convert to -1 1
         v_coh=cat(1, v_coh,v_dir(end).*coherence(order(t, 1))); %
         
         a_dir=cat(1, a_dir, 2*(order(t, 3)-1.5)); % convert to -1 1
-        v_resp=cat(1,v_resp, -(resp(t)-38));
+        
+        
+        v_resp=cat(1,v_resp,(resp(t)));
+        
+        
         congruent=cat(1, congruent, v_dir(end)==a_dir(end)); % two modalities congruent?
         correct=cat(1, correct, v_dir(end)==v_resp(end));
     end
@@ -36,6 +58,9 @@ end
 
 %% collate data as a function of direction coherence
 coh_levels=unique(v_coh);
+
+
+
 for c=1:length(coh_levels)
     
     ind=find(v_coh==coh_levels(c));
@@ -55,7 +80,7 @@ freeList = {'t','s'};
 p.t=0; % starting point for coherence threshold
 p.s=1; % starting estimate for slope
 
-figure(1); hold on
+figure; hold on
 pL = fit('FitCDFNorm',p, freeList, coh_levels,[n_aL_respL; n_aL_respR]');
 plotpsych(coh_levels,[n_aL_respL; n_aL_respR]',pL,'CDFNorm'); hold on
 set(gca, 'YLim', [-.1 1.1])
@@ -80,7 +105,7 @@ set(gca, 'XLim', [-1 1])
 xlabel('visual motion coherence')
 ylabel('% report left')
 
-h=text(.6, .6, num2str(round(pR.t, 2)))
+h=text(.6, .6, num2str(round(pR.t, 2)));
 set(h, 'Color', 'r')
 h=text(.6, .3, num2str(round(pL.t, 2)));
 set(h, 'Color', 'b')

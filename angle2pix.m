@@ -24,14 +24,6 @@ pix = round(sz/pixSize);   %pix
 
 return
 
-%test code
-
-display.dist = 60; %cm
-display.width = 44.5; %cm
-display.resolution = [1680,1050];
-ang = 2.529;
-
-angle2pix(display,ang)
 
 
 

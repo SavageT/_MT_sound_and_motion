@@ -1,4 +1,4 @@
-function movingDots(display,dots,duration)
+function P=movingDotsBlur(display,dots,duration,dotTexture)
 % movingDots(display,dots,duration)
 %
 % Animates a field of moving dots based on parameters defined in the 'dots'
@@ -37,14 +37,14 @@ function movingDots(display,dots,duration)
 
 %Calculate total number of dots across fields
 nDots = dots.nDots;
-nn = 44; % MAKE SURE THE DOT IS AN EVEN NUMBER OF PIXELS
+nn = dots.size; % MAKE SURE THE DOT IS AN EVEN NUMBER OF PIXELS
 
 %rectify var names
 fixRectSz=display.fixation.fixRectSz;
 fixRectLoc=display.fixation.fixRectLoc;
 fixTexture=display.fixation.fixTexture;
 dotRect=dots.dotRect;
-dotTexture=dots.dotTexture;
+dotTexture=dotTexture;
 
 
 %% Intitialize the dot positions and define some other initial parameters
@@ -77,6 +77,7 @@ goodDots = false(zeros(1,nDots));
 nFrames = secs2frames(display,duration);
 
 %% Loop through the frames
+P=0; 
 
 for frameNum=1:nFrames
     %  count = 1;
@@ -102,22 +103,38 @@ for frameNum=1:nFrames
     dots.y(deadDots) = (rand(1,sum(deadDots))-.5)*dots.apertureSize(2) + dots.center(2);
     
     %Calculate the screen positions for this field from the real-world coordinates
-    x = angle2pix(display,dots.x)+ display.resolution(1)/2;
-    y = angle2pix(display,dots.y)+ display.resolution(2)/2;
-    destRect=[x-nn/2; y-nn/2; x+nn/2; y+nn/2];
+    x = angle2pix(display,dots.x)+ display.resolution(1)/2; %commented /2 for screen res test t.s.
+    y = angle2pix(display,dots.y)+ display.resolution(2)/2;%commented /2
+
+    
+%     destRect=[x-nn/2; y-nn/2; x+nn/2; y+nn/2]; %orig commented by t.s.
+
+    destRect=[x-nn; y-nn; x+nn; y+nn];
+    
     
     %Determine which of the dots in this field are outside this field's
     %elliptical aperture
     goodDots = (dots.x-dots.center(1)).^2/(dots.apertureSize(1)/2)^2 + ...
         (dots.y-dots.center(2)).^2/(dots.apertureSize(2)/2)^2 < 1;
+%    
+%     [keyIsDown, timeSecs, keyCode ] = KbCheck;
+%     if (find(keyCode)==80) ;
+%         P=1;
+%         Screen('DrawTextures', display.windowPtr, dotTexture, dotRect, destRect);
+%         Screen('DrawTexture', display.windowPtr, fixTexture, fixRectSz, fixRectLoc);
+%         drawText(display, [0 1],'Pause.  Press R to resume.',255*ones(1,3));
+%         Screen('Flip',display.windowPtr);
+%     
+%     elseif P==0
     
     Screen('DrawTextures', display.windowPtr, dotTexture, dotRect, destRect);
     Screen('DrawTexture', display.windowPtr, fixTexture, fixRectSz, fixRectLoc);
-    
-    
     Screen('Flip',display.windowPtr);
     
-end
+ 
+  %  end
+    
+ end
 
 end
 

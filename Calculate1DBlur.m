@@ -1,9 +1,11 @@
 function [G_conv, g]=Calculate1DBlur(g, grating1D)
 % blurs images according to a filter (made from 2 Gaussians)
 % designed to match Mike's CSF
+
 % Takes as input:
 % grating1D: A 2D matrix where each column is a separate 1D vector to be
 % blurred
+
 % g: parameters of the filter
 
 if strcmp(g.version, 'Gaussian')

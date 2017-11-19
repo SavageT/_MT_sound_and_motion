@@ -1,4 +1,4 @@
-function movingDots(display,dots,duration,stim,Fs)
+function movingDots_orig(display,dots,duration, dim)
 % movingDots(display,dots,duration)
 %
 % Animates a field of moving dots based on parameters defined in the 'dots'
@@ -33,7 +33,7 @@ function movingDots(display,dots,duration,stim,Fs)
 %    resolution      pixel resolution, set by 'OpenWindow'
 
 % 3/23/09 Written by G.M. Boynton at the University of Washington
-
+ 
 
 %Calculate total number of dots across fields
 nDots = sum([dots.nDots]);
@@ -47,17 +47,7 @@ sizes = zeros(1,nDots);
 order=  randperm(nDots);
 
 
-
-%%T.s. addition
-
-
-% blurshader = Create2DGaussianBlurShader(5);
-  
-    
-
 %% Intitialize the dot positions and define some other initial parameters
-
-
 
 count = 1;
 for i=1:length(dots) %Loop through the fields
@@ -135,55 +125,17 @@ for frameNum=1:nFrames
 
         %Determine which of the dots in this field are outside this field's
         %elliptical aperture
-        goodDots(id) = (dots(i).x-dots(i).center(1)).^2/(dots(i).apertureSize(1)/2)^2 + ...
+        goodDots = (dots(i).x-dots(i).center(1)).^2/(dots(i).apertureSize(1)/2)^2 + ...
             (dots(i).y-dots(i).center(2)).^2/(dots(i).apertureSize(2)/2)^2 < 1;
   
         count = count+dots(i).nDots;
     end
     
     %Draw all fields at once
-    
-    %%orig Screen('DrawDots',display.windowPtr,[pixpos.x(goodDots);pixpos.y(goodDots)], sizes(goodDots), colors(:,goodDots),[0,0],1);
-   
-    
-    
-    OSN=Screen('OpenOffscreenWindow', display.windowPtr,[0 0 0],[],[],[1]);
-       Screen('DrawDots',OSN,[pixpos.x(goodDots);pixpos.y(goodDots)], sizes(goodDots), colors(:,goodDots),[0,0],1);
-Screen('TransformTexture', OSN, transformProxyPtr, [],[transtexid(frameNum)] [, specialFlags]);
-       
-%        glUseProgram(blurshader);
-%   Screen('DrawTexture', display.windowPtr, OSN,[],[],[],[],[],[],blurshader);
-%   Screen('Flip',display.windowPtr);
-%   Screen('DrawTexture', display.windowPtr, OSN,[],[],[],[],[],[]);
-% drawFixation(display);
-% %            glUseProgram(0);
-       
-       %Draw the fixation point (and call Screen's Flip')
-% drawFixation(display);
-    
-%     Screen('BeginOpenGL', display.windowPtr)
-%   glUseProgram(blurshader);
-        
-    
-%         glFinish
-%     glUseProgram(0);
-%     Screen('EndOpenGL', display.windowPtr)
-%     
-%         Screen('Flip',display.windowPtr);
-        
-%         glUseProgram(0);
-% imageArray=Screen('GetImage', display.windowPtr);
- 
+    Screen('DrawDots',display.windowPtr,[pixpos.x(goodDots);pixpos.y(goodDots)], sizes(goodDots), colors(:,goodDots),[0,0],1);
 
+    %Draw the fixation point (and call Screen's Flip')
+    drawFixation(display);
 end
-
-%         sound(stim./max(stim(:)), Fs)
-for frameNum=1:nFrames
-  Screen('DrawTexture', display.windowPtr, OSN(frameNum),[],[],[],[-5]);
-  Screen('Flip',display.windowPtr);
-%        Screen('Flip',display.windowPtr);
-end
-
-
 %clear the screen and leave the fixation point
-% drawFixation(display);
+drawFixation(display);

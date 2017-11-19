@@ -135,7 +135,7 @@ for frameNum=1:nFrames
 
         %Determine which of the dots in this field are outside this field's
         %elliptical aperture
-        goodDots(id) = (dots(i).x-dots(i).center(1)).^2/(dots(i).apertureSize(1)/2)^2 + ...
+        goodDots = (dots(i).x-dots(i).center(1)).^2/(dots(i).apertureSize(1)/2)^2 + ...
             (dots(i).y-dots(i).center(2)).^2/(dots(i).apertureSize(2)/2)^2 < 1;
   
         count = count+dots(i).nDots;

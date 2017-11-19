@@ -47,7 +47,7 @@ if display.skipChecks
     Screen('Preference', 'SkipSyncTests',1);
     Screen('Preference', 'VisualDebugLevel',0);
 end
-display
+
 %Open the window
 [display.windowPtr,res]=Screen('OpenWindow',display.screenNum,display.bkColor);
 
